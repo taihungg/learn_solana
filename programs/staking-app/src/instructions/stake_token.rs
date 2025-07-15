@@ -10,6 +10,7 @@ use crate::{
 
 #[derive(Accounts)]
 pub struct StakeToken<'info> {
+    // authority của vault, được xác thực bằng seeds và bump
     /// CHECK:
     #[account(
         seeds = [b"VAULT_AUTHORITY", mint.key().as_ref()],
@@ -17,6 +18,7 @@ pub struct StakeToken<'info> {
     )]
     pub vault_authority: UncheckedAccount<'info>,
 
+    // kho chứa tiền (là một ATA) của staking_app (tiền thực sự sẽ đổ về đây)
     #[account(
         init_if_needed,
         payer = payer,
@@ -25,6 +27,7 @@ pub struct StakeToken<'info> {
     )]
     pub staking_vault: Box<Account<'info, TokenAccount>>,
 
+    // tài khoản lưu thông tin stake của người dùng trong staking_app
     #[account(
         init_if_needed,
         seeds = [b"BANK_INFO_SEED", user.key().as_ref(), mint.key().as_ref()],
@@ -34,12 +37,22 @@ pub struct StakeToken<'info> {
     )]
     pub user_info: Box<Account<'info, UserTokenInfo>>,
 
+    // người dùng stake token
     #[account(mut)]
     pub user: Signer<'info>,
+
+    // người trả fee cho giao dịch
     #[account(mut)]
     pub payer: Signer<'info>,
-    #[account(mut)]
+
+    // nguồn tiền của người dùng
+    #[account(
+        mut,
+        associated_token::mint = mint,
+        associated_token::authority = user
+    )]
     pub user_ata: Box<Account<'info, TokenAccount>>,
+
     pub mint: Box<Account<'info, Mint>>,
     pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>,
@@ -55,6 +68,7 @@ pub struct UserTokenInfo {
 
 impl<'info> StakeToken<'info> {
     pub fn process(ctx: Context<StakeToken>, amount: u64, is_stake: bool) -> Result<()> {
+        // user_info này là thông tin stake của người dùng trong staking_app
         let user_info = &mut ctx.accounts.user_info;
 
         let current_time: u64 = Clock::get()?.unix_timestamp.try_into().unwrap();
