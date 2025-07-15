@@ -18,7 +18,7 @@ pub struct StakeToken<'info> {
     )]
     pub vault_authority: UncheckedAccount<'info>,
 
-    // kho chứa tiền của staking_app (tiền thực sự sẽ đổ về đây)
+    // kho chứa tiền (là một ATA) của staking_app (tiền thực sự sẽ đổ về đây)
     #[account(
         init_if_needed,
         payer = payer,
@@ -46,7 +46,11 @@ pub struct StakeToken<'info> {
     pub payer: Signer<'info>,
 
     // nguồn tiền của người dùng
-    #[account(mut)]
+    #[account(
+        mut,
+        associated_token::mint = mint,
+        associated_token::authority = user
+    )]
     pub user_ata: Box<Account<'info, TokenAccount>>,
 
     pub mint: Box<Account<'info, Mint>>,
