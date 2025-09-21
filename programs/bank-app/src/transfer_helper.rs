@@ -76,7 +76,7 @@ pub fn token_transfer_from_pda<'info>(
     pda_seeds: &[&[&[u8]]],
     amount: u64,
 ) -> Result<()> {
-    let cpi_ctx = CpiContext::new_with_signer(
+    let cpi_ctx  = CpiContext::new_with_signer(
         token_program.to_account_info(),
         token::Transfer {
             from,

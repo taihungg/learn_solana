@@ -10,7 +10,7 @@ name = "bank_app"
 
 [features]
 no-entrypoint = []
-no-idl = []
+idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
 no-log-ix-name = []
 cpi = ["no-entrypoint"]
 default = []

@@ -1,7 +1,7 @@
 use anchor_lang::{prelude::*, system_program};
 use anchor_spl::{
-    token::Token,
-    token_interface::{Mint, TokenAccount},
+    token::{Token, Mint, TokenAccount},
+    associated_token::AssociatedToken,
 };
 
 use crate::{
@@ -29,21 +29,21 @@ pub struct DepositToken<'info> {
     pub bank_vault: UncheckedAccount<'info>,
 
     #[account(mut)]
-    pub token_mint: Box<InterfaceAccount<'info, Mint>>,
+    pub token_mint: Box<Account<'info, Mint>>,
 
     #[account(
         mut,
         associated_token::mint = token_mint,
         associated_token::authority = user
     )]
-    pub user_ata: Box<InterfaceAccount<'info, TokenAccount>>,
+    pub user_ata: Box<Account<'info, TokenAccount>>,
 
     #[account(
         mut,
         associated_token::mint = token_mint,
         associated_token::authority = bank_vault
     )]
-    pub bank_ata: Box<InterfaceAccount<'info, TokenAccount>>,
+    pub bank_ata: Box<Account<'info, TokenAccount>>,
 
     #[account(
         init_if_needed,
@@ -61,6 +61,7 @@ pub struct DepositToken<'info> {
     #[account(mut)]
     pub user: Signer<'info>,
     pub token_program: Program<'info, Token>,
+    pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>,
 }
 
